@@ -684,3 +684,31 @@ body {
   color: var(--color-text-secondary);
   white-space: nowrap;
 }
+
+/* ---------- Mock 数据生成 ---------- */
+.panel-hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+.mock-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mock-range span {
+  color: var(--color-text-secondary);
+}
+
+.mock-table-wrap {
+  max-height: 440px;
+  overflow: auto;
+  border-radius: 8px;
+}
+
+.mock-table-wrap .el-table {
+  font-size: 12px;
+}
