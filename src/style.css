@@ -486,3 +486,135 @@ body {
   font-size: 12px;
   color: var(--color-text-secondary);
 }
+
+/* ---------- 通用补充 ---------- */
+.hint {
+  margin: auto;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.mono .el-input__inner,
+.mono .el-textarea__inner {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 13px;
+}
+
+/* ---------- UUID / 随机字符串生成 ---------- */
+.gen-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.gen-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #f6f7fb;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.gen-row:hover {
+  background: #eceef5;
+}
+
+.gen-index {
+  flex: none;
+  width: 28px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+.gen-text {
+  font-family: 'SFMono-Regular', Consolas, Menlo, monospace;
+  font-size: 13px;
+  word-break: break-all;
+}
+
+/* ---------- 颜色转换 ---------- */
+.picker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.picker-hex {
+  font-family: 'SFMono-Regular', Consolas, Menlo, monospace;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.preset-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.preset-dot:hover {
+  transform: scale(1.15);
+}
+
+.color-preview {
+  height: 96px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-empty {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+/* ---------- JWT 解析 ---------- */
+.jwt-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+}
+
+.jwt-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.jwt-card-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.json-view {
+  margin: 0;
+  padding: 10px 12px;
+  background: #f6f7fb;
+  border-radius: 6px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 220px;
+  overflow-y: auto;
+}
