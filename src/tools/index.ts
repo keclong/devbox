@@ -2,6 +2,7 @@
 // 新增工具时，只需在这里加一行 import。
 import './base64'
 import './color-converter'
+import './hash-tool'
 import './json-formatter'
 import './jwt-decoder'
 import './regex-tester'

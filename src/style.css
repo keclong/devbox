@@ -618,3 +618,12 @@ body {
   max-height: 220px;
   overflow-y: auto;
 }
+
+/* ---------- 哈希计算 ---------- */
+.hash-row .label {
+  width: 72px;
+}
+
+.hash-row .value {
+  user-select: all;
+}
