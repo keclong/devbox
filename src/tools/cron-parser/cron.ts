@@ -27,7 +27,7 @@ export type ParseResult =
   | { ok: true; fields: CronFields; infos: FieldInfo[]; description: string }
   | { ok: false; error: string }
 
-interface FieldSpec {
+export interface FieldSpec {
   key: 'minute' | 'hour' | 'dayOfMonth' | 'month' | 'dayOfWeek'
   name: string
   min: number
@@ -37,7 +37,7 @@ interface FieldSpec {
   rangeText: string
 }
 
-const FIELD_SPECS: FieldSpec[] = [
+export const FIELD_SPECS: FieldSpec[] = [
   { key: 'minute', name: '分钟', min: 0, max: 59, names: null, rangeText: '0-59' },
   { key: 'hour', name: '小时', min: 0, max: 23, names: null, rangeText: '0-23' },
   { key: 'dayOfMonth', name: '日', min: 1, max: 31, names: null, rangeText: '1-31' },
