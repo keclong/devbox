@@ -728,3 +728,77 @@ body {
   max-width: 100%;
   height: auto;
 }
+
+/* ---------- 历史记录（跨工具） ---------- */
+.history-panel {
+  margin-top: auto;
+  border: 1px dashed var(--color-border);
+  border-radius: 8px;
+  background: #fafbfd;
+}
+
+.history-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.history-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.history-caret {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.history-list {
+  border-top: 1px solid var(--color-border);
+  max-height: 170px;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.history-item:hover {
+  background: #eef1f8;
+}
+
+.history-label {
+  flex: 1;
+  min-width: 0;
+  font-family: 'SFMono-Regular', Consolas, Menlo, monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-time {
+  flex: none;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.history-del {
+  flex: none;
+  padding: 0 4px;
+  color: var(--color-text-secondary);
+}
+
+.history-del:hover {
+  color: var(--color-error);
+}

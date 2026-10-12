@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { ElButton, ElCheckbox, ElInputNumber, ElMessage, ElRadio, ElRadioGroup } from 'element-plus'
 import ToolLayout from '../../components/ToolLayout.vue'
 import CopyButton from '../../components/CopyButton.vue'
+import HistoryPanel from '../../components/HistoryPanel.vue'
+import { createRecorder } from '../../composables/useHistory'
 
 type Mode = 'uuid' | 'string'
 
@@ -82,6 +84,46 @@ watch(mode, generate)
 watch(count, generate)
 watch(uuidOpts, generate)
 watch(strOpts, generate)
+
+// 配置签名：任一选项变化后停止 1.2 秒自动记录，便于复用同一套生成配置
+const configSig = computed(() =>
+  JSON.stringify({ m: mode.value, c: count.value, u: uuidOpts, s: strOpts }),
+)
+const recorder = createRecorder('uuid')
+watch(configSig, () =>
+  recorder.schedule(() => ({
+    label:
+      mode.value === 'uuid'
+        ? `UUID v4 · ${count.value} 个`
+        : `随机字符串 · ${count.value} 个 · ${strOpts.length} 位`,
+    data: {
+      mode: mode.value,
+      count: count.value,
+      uuidOpts: { ...uuidOpts },
+      strOpts: { ...strOpts },
+    },
+  })),
+)
+
+function restore(data: unknown): void {
+  const d = data as {
+    mode?: unknown
+    count?: unknown
+    uuidOpts?: Record<string, unknown>
+    strOpts?: Record<string, unknown>
+  }
+  if (d.mode === 'uuid' || d.mode === 'string') mode.value = d.mode
+  if (typeof d.count === 'number') count.value = d.count
+  uuidOpts.upper = d.uuidOpts?.upper === true
+  uuidOpts.noHyphen = d.uuidOpts?.noHyphen === true
+  uuidOpts.braces = d.uuidOpts?.braces === true
+  strOpts.length = typeof d.strOpts?.length === 'number' ? d.strOpts.length : strOpts.length
+  strOpts.digits = d.strOpts?.digits === true
+  strOpts.lower = d.strOpts?.lower === true
+  strOpts.upper = d.strOpts?.upper === true
+  strOpts.symbols = d.strOpts?.symbols === true
+  ElMessage.success('已恢复历史配置')
+}
 </script>
 
 <template>
@@ -122,6 +164,7 @@ watch(strOpts, generate)
           <ElCheckbox v-model="strOpts.symbols">符号</ElCheckbox>
         </div>
       </template>
+      <HistoryPanel tool-id="uuid" @restore="restore" />
     </template>
 
     <template #output>

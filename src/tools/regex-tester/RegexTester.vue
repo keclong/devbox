@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { ElButton, ElCheckbox, ElInput } from 'element-plus'
+import { computed, reactive, ref, watch } from 'vue'
+import { ElButton, ElCheckbox, ElInput, ElMessage } from 'element-plus'
 import ToolLayout from '../../components/ToolLayout.vue'
+import HistoryPanel from '../../components/HistoryPanel.vue'
+import { createRecorder, preview } from '../../composables/useHistory'
 
 interface MatchInfo {
   full: string
@@ -23,6 +25,41 @@ const flagStr = computed(() =>
     .map(([key]) => key)
     .join(''),
 )
+
+// 输入停止变化 1.2 秒后自动记录，避免逐字记录
+const recorder = createRecorder('regex')
+watch([pattern, testText, flagStr], () =>
+  recorder.schedule(() =>
+    pattern.value && testText.value
+      ? {
+          label: `/${pattern.value}/${flagStr.value} · ${preview(testText.value, 16)}`,
+          data: {
+            pattern: pattern.value,
+            testText: testText.value,
+            flags: { ...flags },
+          },
+        }
+      : null,
+  ),
+)
+
+function restore(data: unknown): void {
+  const d = data as {
+    pattern?: unknown
+    testText?: unknown
+    flags?: Record<string, unknown>
+  }
+  if (typeof d.pattern !== 'string' || typeof d.testText !== 'string') return
+  pattern.value = d.pattern
+  testText.value = d.testText
+  const f = d.flags ?? {}
+  flags.i = f.i === true
+  flags.m = f.m === true
+  flags.s = f.s === true
+  flags.u = f.u === true
+  flags.y = f.y === true
+  ElMessage.success('已恢复历史记录')
+}
 
 const regexError = ref('')
 
@@ -110,6 +147,7 @@ function clearAll() {
         class="fill"
         placeholder="输入用于测试的文本"
       />
+      <HistoryPanel tool-id="regex" @restore="restore" />
     </template>
 
     <template #output>

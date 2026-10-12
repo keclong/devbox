@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { ElButton, ElTag } from 'element-plus'
+import { ElButton, ElMessage, ElTag } from 'element-plus'
 import ToolLayout from '../../components/ToolLayout.vue'
 import CopyButton from '../../components/CopyButton.vue'
+import HistoryPanel from '../../components/HistoryPanel.vue'
+import { createRecorder, preview } from '../../composables/useHistory'
 
 interface JwtInfo {
   header: Record<string, unknown>
@@ -95,6 +97,21 @@ function clearAll() {
   decoded.value = null
   error.value = ''
 }
+
+// 输入停止变化 1.2 秒后自动记录，避免逐字记录
+const recorder = createRecorder('jwt')
+watch(token, () =>
+  recorder.schedule(() =>
+    token.value.trim() ? { label: preview(token.value, 28), data: { token: token.value } } : null,
+  ),
+)
+
+function restore(data: unknown): void {
+  const value = (data as { token?: unknown }).token
+  if (typeof value !== 'string') return
+  token.value = value
+  ElMessage.success('已恢复历史记录')
+}
 </script>
 
 <template>
@@ -127,6 +144,7 @@ function clearAll() {
           <span class="value">{{ decoded.header.typ ?? '-' }}</span>
         </div>
       </template>
+      <HistoryPanel tool-id="jwt" @restore="restore" />
     </template>
 
     <template #output>

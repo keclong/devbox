@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { ElColorPicker, ElInput } from 'element-plus'
+import { ElColorPicker, ElInput, ElMessage } from 'element-plus'
 import ToolLayout from '../../components/ToolLayout.vue'
 import CopyButton from '../../components/CopyButton.vue'
+import HistoryPanel from '../../components/HistoryPanel.vue'
+import { createRecorder } from '../../composables/useHistory'
 
 interface Rgb {
   r: number
@@ -126,6 +128,23 @@ watch(inputText, (v) => {
 function onPick(value: string | null) {
   if (value) inputText.value = value
 }
+
+// 仅记录可解析的颜色，输入停止变化 1.2 秒后自动记录
+const recorder = createRecorder('color')
+watch(inputText, () =>
+  recorder.schedule(() => {
+    const text = inputText.value.trim()
+    if (!text || !parseColor(text)) return null
+    return { label: text, data: { color: text } }
+  }),
+)
+
+function restore(data: unknown): void {
+  const value = (data as { color?: unknown }).color
+  if (typeof value !== 'string') return
+  inputText.value = value
+  ElMessage.success('已恢复历史记录')
+}
 </script>
 
 <template>
@@ -154,6 +173,7 @@ function onPick(value: string | null) {
         />
       </div>
       <p v-if="error" class="error-msg">{{ error }}</p>
+      <HistoryPanel tool-id="color" @restore="restore" />
     </template>
 
     <template #output>

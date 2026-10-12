@@ -4,6 +4,7 @@ import {
   ElButton,
   ElCheckbox,
   ElInputNumber,
+  ElMessage,
   ElRadio,
   ElRadioGroup,
   ElTable,
@@ -11,6 +12,8 @@ import {
 } from 'element-plus'
 import ToolLayout from '../../components/ToolLayout.vue'
 import CopyButton from '../../components/CopyButton.vue'
+import HistoryPanel from '../../components/HistoryPanel.vue'
+import { createRecorder } from '../../composables/useHistory'
 import { FIELDS, generateRows, toCsv, type FieldKey } from './mock'
 
 const count = ref(10)
@@ -54,6 +57,40 @@ watch(selected, generate)
 watch(count, generate)
 watch(numberRange, generate)
 onMounted(generate)
+
+// 配置签名：任一配置项变化后停止 1.2 秒自动记录，便于复用同一套生成配置
+const configSig = computed(() =>
+  JSON.stringify({ s: selected, c: count.value, r: numberRange, f: format.value }),
+)
+const recorder = createRecorder('mock')
+watch(configSig, () =>
+  recorder.schedule(() => ({
+    label: `${format.value === 'json' ? 'JSON' : 'CSV'} · ${count.value} 条 · ${
+      activeFields.value.length
+    } 字段`,
+    data: {
+      count: count.value,
+      format: format.value,
+      numberRange: { ...numberRange },
+      selected: { ...selected },
+    },
+  })),
+)
+
+function restore(data: unknown): void {
+  const d = data as {
+    count?: unknown
+    format?: unknown
+    numberRange?: { min?: unknown; max?: unknown }
+    selected?: Record<string, unknown>
+  }
+  if (typeof d.count === 'number') count.value = d.count
+  if (d.format === 'json' || d.format === 'csv') format.value = d.format
+  if (typeof d.numberRange?.min === 'number') numberRange.min = d.numberRange.min
+  if (typeof d.numberRange?.max === 'number') numberRange.max = d.numberRange.max
+  for (const f of FIELDS) selected[f.key] = d.selected?.[f.key] === true
+  ElMessage.success('已恢复历史配置')
+}
 </script>
 
 <template>
@@ -86,6 +123,7 @@ onMounted(generate)
       </template>
 
       <p class="panel-hint">身份证号为随机生成的假数据（含有效校验位），仅用于测试。</p>
+      <HistoryPanel tool-id="mock" @restore="restore" />
     </template>
 
     <template #output>

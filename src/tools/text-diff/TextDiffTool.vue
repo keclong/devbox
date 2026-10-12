@@ -3,6 +3,8 @@ import { computed, ref, watch } from 'vue'
 import { ElButton, ElMessage } from 'element-plus'
 import ToolLayout from '../../components/ToolLayout.vue'
 import CopyButton from '../../components/CopyButton.vue'
+import HistoryPanel from '../../components/HistoryPanel.vue'
+import { preview, useHistory } from '../../composables/useHistory'
 
 interface DiffLine {
   type: 'equal' | 'add' | 'del'
@@ -14,6 +16,16 @@ interface DiffLine {
 const leftText = ref('')
 const rightText = ref('')
 const diffResult = ref<DiffLine[] | null>(null)
+
+const { add } = useHistory('diff')
+
+function restore(data: unknown): void {
+  const d = data as { left?: unknown; right?: unknown }
+  if (typeof d.left !== 'string' || typeof d.right !== 'string') return
+  leftText.value = d.left
+  rightText.value = d.right
+  ElMessage.success('已恢复历史记录')
+}
 
 const stats = computed(() => {
   if (!diffResult.value) return null
@@ -81,6 +93,12 @@ function runDiff() {
     return
   }
   diffResult.value = diffLines(leftText.value.split('\n'), rightText.value.split('\n'))
+  const left = leftText.value
+  const right = rightText.value
+  add(
+    `${preview(left, 14) || '(空)'} → ${preview(right, 14) || '(空)'}`,
+    { left, right },
+  )
 }
 
 function clearAll() {
@@ -114,6 +132,7 @@ function clearAll() {
         class="fill diff-input"
         placeholder="修改后的文本"
       />
+      <HistoryPanel tool-id="diff" @restore="restore" />
     </template>
 
     <template #output>

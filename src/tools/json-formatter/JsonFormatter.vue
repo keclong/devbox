@@ -3,11 +3,28 @@ import { ref } from 'vue'
 import { ElButton, ElMessage, ElOption, ElSelect } from 'element-plus'
 import ToolLayout from '../../components/ToolLayout.vue'
 import CopyButton from '../../components/CopyButton.vue'
+import HistoryPanel from '../../components/HistoryPanel.vue'
+import { preview, useHistory } from '../../composables/useHistory'
 
 const input = ref('')
 const output = ref('')
 const indent = ref<number | string>(4)
 const errorMsg = ref('')
+
+const { add } = useHistory('json-formatter')
+
+/** 动作成功时记录输入，便于之后一键恢复 */
+function recordInput(): void {
+  if (!input.value.trim()) return
+  add(preview(input.value), { input: input.value })
+}
+
+function restore(data: unknown): void {
+  const value = (data as { input?: unknown }).input
+  if (typeof value !== 'string') return
+  input.value = value
+  ElMessage.success('已恢复历史输入')
+}
 
 function tryParse(): { ok: boolean; value?: unknown } {
   errorMsg.value = ''
@@ -29,12 +46,14 @@ function format() {
   const result = tryParse()
   if (!result.ok) return
   output.value = JSON.stringify(result.value, null, indent.value)
+  recordInput()
 }
 
 function minify() {
   const result = tryParse()
   if (!result.ok) return
   output.value = JSON.stringify(result.value)
+  recordInput()
 }
 
 function escapeJson() {
@@ -44,6 +63,7 @@ function escapeJson() {
     return
   }
   output.value = JSON.stringify(input.value)
+  recordInput()
 }
 
 function unescapeJson() {
@@ -60,6 +80,7 @@ function unescapeJson() {
       return
     }
     output.value = value
+    recordInput()
   } catch (e) {
     errorMsg.value = `反转义失败：${(e as Error).message}`
   }
@@ -95,6 +116,7 @@ function clearAll() {
         class="fill"
         placeholder='请输入 JSON，例如：{"name":"devbox","stars":100}'
       />
+      <HistoryPanel tool-id="json-formatter" @restore="restore" />
     </template>
 
     <template #output>

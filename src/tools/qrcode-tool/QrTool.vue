@@ -1,7 +1,18 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { ElAlert, ElButton, ElColorPicker, ElInput, ElRadio, ElRadioGroup, ElSlider } from 'element-plus'
+import {
+  ElAlert,
+  ElButton,
+  ElColorPicker,
+  ElInput,
+  ElMessage,
+  ElRadio,
+  ElRadioGroup,
+  ElSlider,
+} from 'element-plus'
 import ToolLayout from '../../components/ToolLayout.vue'
+import HistoryPanel from '../../components/HistoryPanel.vue'
+import { createRecorder, preview } from '../../composables/useHistory'
 import QRCode from 'qrcode'
 
 type Level = 'L' | 'M' | 'Q' | 'H'
@@ -45,6 +56,45 @@ async function generate(): Promise<void> {
 }
 
 watch([text, size, level, margin, dark, light], generate, { immediate: true })
+
+// 输入停止变化 1.2 秒后自动记录，避免调参时刷屏
+const recorder = createRecorder('qrcode')
+watch([text, size, level, margin, dark, light], () =>
+  recorder.schedule(() =>
+    text.value.trim()
+      ? {
+          label: `${preview(text.value, 24)} · ${size.value}px`,
+          data: {
+            text: text.value,
+            size: size.value,
+            level: level.value,
+            margin: margin.value,
+            dark: dark.value,
+            light: light.value,
+          },
+        }
+      : null,
+  ),
+)
+
+function restore(data: unknown): void {
+  const d = data as {
+    text?: unknown
+    size?: unknown
+    level?: unknown
+    margin?: unknown
+    dark?: unknown
+    light?: unknown
+  }
+  if (typeof d.text !== 'string') return
+  text.value = d.text
+  if (typeof d.size === 'number') size.value = d.size
+  if (d.level === 'L' || d.level === 'M' || d.level === 'Q' || d.level === 'H') level.value = d.level
+  if (typeof d.margin === 'number') margin.value = d.margin
+  if (typeof d.dark === 'string') dark.value = d.dark
+  if (typeof d.light === 'string') light.value = d.light
+  ElMessage.success('已恢复历史记录')
+}
 
 function download(): void {
   if (!qrUrl.value) return
@@ -91,6 +141,7 @@ function download(): void {
         <ElColorPicker v-model="light" />
         <span class="picker-hex">背景 {{ light }}</span>
       </div>
+      <HistoryPanel tool-id="qrcode" @restore="restore" />
     </template>
 
     <template #output>

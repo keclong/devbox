@@ -3,10 +3,27 @@ import { ref } from 'vue'
 import { ElButton, ElMessage } from 'element-plus'
 import ToolLayout from '../../components/ToolLayout.vue'
 import CopyButton from '../../components/CopyButton.vue'
+import HistoryPanel from '../../components/HistoryPanel.vue'
+import { preview, useHistory } from '../../composables/useHistory'
 
 const input = ref('')
 const output = ref('')
 const errorMsg = ref('')
+
+const { add } = useHistory('base64')
+
+/** 动作成功时记录输入，便于之后一键恢复 */
+function recordInput(): void {
+  if (!input.value.trim()) return
+  add(preview(input.value), { input: input.value })
+}
+
+function restore(data: unknown): void {
+  const value = (data as { input?: unknown }).input
+  if (typeof value !== 'string') return
+  input.value = value
+  ElMessage.success('已恢复历史输入')
+}
 
 /** UTF-8 安全的 Base64 编码（原生 btoa 不支持非拉丁字符） */
 function toBase64(text: string): string {
@@ -32,6 +49,7 @@ function encode() {
     return
   }
   output.value = toBase64(input.value)
+  recordInput()
 }
 
 function decode() {
@@ -43,6 +61,7 @@ function decode() {
   }
   try {
     output.value = fromBase64(text)
+    recordInput()
   } catch {
     errorMsg.value = 'Base64 解码失败：输入包含非法字符'
   }
@@ -71,6 +90,7 @@ function clearAll() {
         class="fill"
         placeholder="输入要编码的文本，或粘贴 Base64 进行解码"
       />
+      <HistoryPanel tool-id="base64" @restore="restore" />
     </template>
 
     <template #output>

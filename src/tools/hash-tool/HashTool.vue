@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { ElCheckbox, ElInput } from 'element-plus'
+import { ElCheckbox, ElInput, ElMessage } from 'element-plus'
 import ToolLayout from '../../components/ToolLayout.vue'
 import CopyButton from '../../components/CopyButton.vue'
+import HistoryPanel from '../../components/HistoryPanel.vue'
+import { createRecorder, preview } from '../../composables/useHistory'
 import { md5, toHex } from './md5'
 
 interface HashResult {
@@ -14,6 +16,21 @@ const input = ref('')
 const upper = ref(false)
 const results = ref<HashResult[]>([])
 const byteLength = ref(0)
+
+// 输入停止变化 1.2 秒后自动记录，避免逐字记录
+const recorder = createRecorder('hash')
+watch(input, () =>
+  recorder.schedule(() =>
+    input.value.trim() ? { label: preview(input.value), data: { input: input.value } } : null,
+  ),
+)
+
+function restore(data: unknown): void {
+  const value = (data as { input?: unknown }).input
+  if (typeof value !== 'string') return
+  input.value = value
+  ElMessage.success('已恢复历史输入')
+}
 
 const SHA_ALGORITHMS = ['SHA-1', 'SHA-256', 'SHA-384', 'SHA-512']
 
@@ -74,6 +91,7 @@ watch(upper, () => {
       <div class="flag-row">
         <ElCheckbox v-model="upper">大写输出</ElCheckbox>
       </div>
+      <HistoryPanel tool-id="hash" @restore="restore" />
     </template>
 
     <template #output>

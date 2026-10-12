@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   ElButton,
   ElInput,
+  ElMessage,
   ElOption,
   ElRadioButton,
   ElRadioGroup,
@@ -10,6 +11,8 @@ import {
 } from 'element-plus'
 import ToolLayout from '../../components/ToolLayout.vue'
 import CopyButton from '../../components/CopyButton.vue'
+import HistoryPanel from '../../components/HistoryPanel.vue'
+import { createRecorder } from '../../composables/useHistory'
 
 type Unit = 's' | 'ms'
 
@@ -88,6 +91,35 @@ function fillNow() {
   input.value = unit.value === 's' ? String(Math.floor(now / 1000)) : String(now)
 }
 
+// 输入停止变化 1.2 秒后自动记录，避免逐字记录
+const recorder = createRecorder('timestamp')
+watch([input, unit, zone, dateTimeInput], () =>
+  recorder.schedule(() => {
+    const ts = input.value.trim()
+    const dt = dateTimeInput.value.trim()
+    if (!ts && !dt) return null
+    return {
+      label: ts ? `${ts}（${unit.value === 's' ? '秒' : '毫秒'}）` : dt,
+      data: { input: ts, unit: unit.value, zone: zone.value, dateTimeInput: dt },
+    }
+  }),
+)
+
+function restore(data: unknown): void {
+  const d = data as {
+    input?: unknown
+    unit?: unknown
+    zone?: unknown
+    dateTimeInput?: unknown
+  }
+  if (typeof d.input !== 'string' || typeof d.dateTimeInput !== 'string') return
+  input.value = d.input
+  dateTimeInput.value = d.dateTimeInput
+  if (d.unit === 's' || d.unit === 'ms') unit.value = d.unit
+  if (typeof d.zone === 'string' && zones.some((z) => z.value === d.zone)) zone.value = d.zone
+  ElMessage.success('已恢复历史记录')
+}
+
 function clearAll() {
   input.value = ''
   dateTimeInput.value = ''
@@ -112,6 +144,7 @@ function clearAll() {
       <ElInput v-model="input" class="fill" placeholder="输入时间戳，如 1728374400" />
       <ElInput v-model="dateTimeInput" type="datetime-local" class="fill" />
       <p class="hint">上方输入时间戳查看对应时间；下方选择日期时间可反查时间戳</p>
+      <HistoryPanel tool-id="timestamp" @restore="restore" />
     </template>
 
     <template #output>

@@ -3,10 +3,27 @@ import { ref } from 'vue'
 import { ElButton, ElMessage } from 'element-plus'
 import ToolLayout from '../../components/ToolLayout.vue'
 import CopyButton from '../../components/CopyButton.vue'
+import HistoryPanel from '../../components/HistoryPanel.vue'
+import { preview, useHistory } from '../../composables/useHistory'
 
 const input = ref('')
 const output = ref('')
 const errorMsg = ref('')
+
+const { add } = useHistory('url')
+
+/** 动作成功时记录输入，便于之后一键恢复 */
+function recordInput(): void {
+  if (!input.value.trim()) return
+  add(preview(input.value), { input: input.value })
+}
+
+function restore(data: unknown): void {
+  const value = (data as { input?: unknown }).input
+  if (typeof value !== 'string') return
+  input.value = value
+  ElMessage.success('已恢复历史输入')
+}
 
 function encode() {
   errorMsg.value = ''
@@ -15,6 +32,7 @@ function encode() {
     return
   }
   output.value = encodeURIComponent(input.value)
+  recordInput()
 }
 
 function decode() {
@@ -26,6 +44,7 @@ function decode() {
   }
   try {
     output.value = decodeURIComponent(text)
+    recordInput()
   } catch {
     errorMsg.value = 'URL 解码失败：输入包含非法转义序列（如 % 后缺少两位十六进制数）'
   }
@@ -54,6 +73,7 @@ function clearAll() {
         class="fill"
         placeholder='输入要编码的文本，如：name=张三&city=北京，或粘贴 %E5%BC%A0%E4%B8%89 进行解码'
       />
+      <HistoryPanel tool-id="url" @restore="restore" />
     </template>
 
     <template #output>

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { ElAlert, ElButton, ElInput, ElTable, ElTableColumn, ElTag } from 'element-plus'
+import { ElAlert, ElButton, ElInput, ElMessage, ElTable, ElTableColumn, ElTag } from 'element-plus'
 import ToolLayout from '../../components/ToolLayout.vue'
 import CopyButton from '../../components/CopyButton.vue'
+import HistoryPanel from '../../components/HistoryPanel.vue'
+import { createRecorder } from '../../composables/useHistory'
 import { parseCron, nextRuns, type ParseResult } from './cron'
 
 const expr = ref('0 9 * * 1-5')
@@ -61,6 +63,22 @@ function update(): void {
 
 watch(expr, update)
 update()
+
+// 输入停止变化 1.2 秒后自动记录，避免逐字记录
+const recorder = createRecorder('cron')
+watch(expr, () =>
+  recorder.schedule(() => {
+    const text = expr.value.trim()
+    return text ? { label: text, data: { expr: text } } : null
+  }),
+)
+
+function restore(data: unknown): void {
+  const value = (data as { expr?: unknown }).expr
+  if (typeof value !== 'string') return
+  expr.value = value
+  ElMessage.success('已恢复历史记录')
+}
 </script>
 
 <template>
@@ -83,6 +101,7 @@ update()
         支持 *、列表（1,15）、范围（1-5）、步长（*/5、1-30/2）、月份与星期名称（JAN、MON），以及
         @daily、@hourly 等宏。
       </p>
+      <HistoryPanel tool-id="cron" @restore="restore" />
     </template>
 
     <template #output>
