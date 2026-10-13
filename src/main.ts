@@ -3,6 +3,8 @@ import { h } from 'vue'
 import ElementPlus from 'element-plus'
 import { ElButton, ElNotification } from 'element-plus'
 import 'element-plus/dist/index.css'
+// Element Plus 暗色主题变量（html.dark 下的 --el-* 覆盖）
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import App from './App.vue'
 import './tools' // 须先于 router 导入：触发所有工具的注册
 import router from './router'

@@ -1,14 +1,57 @@
 :root {
   --color-primary: #4f6ef7;
+  --color-on-primary: #ffffff;
   --color-bg: #f5f6fa;
   --color-surface: #ffffff;
+  --color-surface-secondary: var(--color-surface-secondary);
+  --color-code-bg: var(--color-code-bg);
+  --color-hover: var(--color-hover);
   --color-border: #e4e7f0;
   --color-text: #1f2430;
   --color-text-secondary: #7a8199;
   --color-error: #e64545;
   --color-error-bg: #fdf0f0;
+  --color-diff-add-bg: var(--color-diff-add-bg);
+  --color-diff-add-text: var(--color-diff-add-text);
+  --color-diff-del-bg: var(--color-diff-del-bg);
+  --color-diff-del-text: var(--color-diff-del-text);
+  --color-hl-bg: var(--color-hl-bg);
+  --color-line-no: var(--color-line-no);
   --radius: 10px;
   --shadow: 0 1px 3px rgba(20, 30, 60, 0.06);
+}
+
+/* 深色主题：仅覆盖变量，组件样式全部走变量自动适配 */
+html.dark {
+  --color-primary: #5b74e8;
+  --color-bg: #141419;
+  --color-surface: #1e1f26;
+  --color-surface-secondary: #262731;
+  --color-code-bg: #262731;
+  --color-hover: #2c2d38;
+  --color-border: #33343f;
+  --color-text: #e8e9ee;
+  --color-text-secondary: #9aa0b4;
+  --color-error: #f2706f;
+  --color-error-bg: #3a2224;
+  --color-diff-add-bg: #17342a;
+  --color-diff-add-text: #56d39a;
+  --color-diff-del-bg: #3d2020;
+  --color-diff-del-text: #f28379;
+  --color-hl-bg: #6b5a1e;
+  --color-line-no: #6b7080;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* 主题切换过渡（首帧不加，避免初始化闪动） */
+.theme-ready body,
+.theme-ready .app-header,
+.theme-ready .app-footer,
+.theme-ready .tool-card,
+.theme-ready .tool-panel,
+.theme-ready .match-card,
+.theme-ready .jwt-card {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
 * {
@@ -202,7 +245,7 @@ body {
   color: var(--color-text-secondary);
   padding: 10px 16px;
   border-bottom: 1px solid var(--color-border);
-  background: #fafbfd;
+  background: var(--color-surface-secondary);
 }
 
 .panel-body {
@@ -220,7 +263,7 @@ body {
   gap: 8px;
   padding: 10px 16px;
   border-top: 1px solid var(--color-border);
-  background: #fafbfd;
+  background: var(--color-surface-secondary);
   min-height: 47px;
 }
 
@@ -265,7 +308,7 @@ body {
   padding: 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #fafbfd;
+  background: var(--color-surface-secondary);
 }
 
 .result-row .label {
@@ -300,7 +343,7 @@ body {
   border-radius: 8px;
   overflow: auto;
   max-height: 460px;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .diff-line {
@@ -316,7 +359,7 @@ body {
   width: 42px;
   padding: 0 6px;
   text-align: right;
-  color: #a0a6b8;
+  color: var(--color-line-no);
   user-select: none;
   border-right: 1px solid var(--color-border);
 }
@@ -336,21 +379,21 @@ body {
 }
 
 .diff-line.add {
-  background: #e9f7ec;
+  background: var(--color-diff-add-bg);
 }
 
 .diff-line.add .diff-text,
 .diff-line.add .diff-mark {
-  color: #1a7f37;
+  color: var(--color-diff-add-text);
 }
 
 .diff-line.del {
-  background: #fdeceb;
+  background: var(--color-diff-del-bg);
 }
 
 .diff-line.del .diff-text,
 .diff-line.del .diff-mark {
-  color: #c0392b;
+  color: var(--color-diff-del-text);
 }
 
 .diff-stats {
@@ -359,12 +402,12 @@ body {
 }
 
 .diff-stats .add-count {
-  color: #1a7f37;
+  color: var(--color-diff-add-text);
   margin-right: 8px;
 }
 
 .diff-stats .del-count {
-  color: #c0392b;
+  color: var(--color-diff-del-text);
 }
 
 /* ---------- 正则测试工具 ---------- */
@@ -395,7 +438,7 @@ body {
   min-height: 240px;
   max-height: 400px;
   overflow: auto;
-  background: #fff;
+  background: var(--color-surface);
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   font-size: 13px;
   line-height: 1.7;
@@ -404,7 +447,7 @@ body {
 }
 
 .highlight-view .hl {
-  background: #ffe9a8;
+  background: var(--color-hl-bg);
   border-radius: 2px;
 }
 
@@ -449,7 +492,7 @@ body {
 .match-full {
   font-family: 'SFMono-Regular', Consolas, Menlo, monospace;
   font-size: 13px;
-  background: #f6f7fb;
+  background: var(--color-code-bg);
   border-radius: 6px;
   padding: 6px 10px;
   white-space: pre-wrap;
@@ -515,13 +558,13 @@ body {
   gap: 10px;
   padding: 6px 10px;
   border-radius: 6px;
-  background: #f6f7fb;
+  background: var(--color-code-bg);
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .gen-row:hover {
-  background: #eceef5;
+  background: var(--color-hover);
 }
 
 .gen-index {
@@ -608,7 +651,7 @@ body {
 .json-view {
   margin: 0;
   padding: 10px 12px;
-  background: #f6f7fb;
+  background: var(--color-code-bg);
   border-radius: 6px;
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   font-size: 12.5px;
@@ -662,7 +705,7 @@ body {
   gap: 10px;
   padding: 6px 10px;
   border-radius: 6px;
-  background: #f6f7fb;
+  background: var(--color-code-bg);
 }
 
 .cron-run-index {
@@ -741,7 +784,7 @@ body {
   margin-top: auto;
   border: 1px dashed var(--color-border);
   border-radius: 8px;
-  background: #fafbfd;
+  background: var(--color-surface-secondary);
 }
 
 .history-head {
@@ -782,7 +825,7 @@ body {
 }
 
 .history-item:hover {
-  background: #eef1f8;
+  background: var(--color-hover);
 }
 
 .history-label {

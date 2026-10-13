@@ -2,6 +2,19 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // 防主题闪白：Vue 挂载前同步应用主题（与 useTheme.ts 逻辑保持一致）
+      ;(function () {
+        var t = null
+        try {
+          t = localStorage.getItem('devbox:theme')
+        } catch (e) {}
+        if (t !== 'light' && t !== 'dark') {
+          t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        if (t === 'dark') document.documentElement.className = 'dark'
+      })()
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DevBox · 开发者工具箱</title>
     <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />

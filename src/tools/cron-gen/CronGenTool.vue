@@ -256,7 +256,7 @@ function restore(data: unknown): void {
   border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 14px 16px;
-  background: #fafbfd;
+  background: var(--color-surface-secondary);
   margin-bottom: 14px;
 }
 
@@ -292,7 +292,7 @@ function restore(data: unknown): void {
   height: 20px;
   border-radius: 50%;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary);
   font-size: 11px;
   display: flex;
   align-items: center;
