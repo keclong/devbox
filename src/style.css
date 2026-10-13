@@ -713,6 +713,13 @@ body {
   font-size: 12px;
 }
 
+/* ---------- PWA 更新提示（Notification 挂载在 body，须用全局样式） ---------- */
+.pwa-update {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 /* ---------- 二维码生成 ---------- */
 .qr-preview {
   display: flex;
