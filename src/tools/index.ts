@@ -1,5 +1,6 @@
 // 汇总导入：每个工具的 index.ts 在模块加载时自动完成注册。
 // 新增工具时，只需在这里加一行 import。
+import './aes'
 import './base64'
 import './case-convert'
 import './color-converter'
@@ -8,8 +9,11 @@ import './cron-parser'
 import './hash-tool'
 import './ip-calc'
 import './json-formatter'
+import './jsonpath'
 import './jwt-decoder'
+import './markdown'
 import './mock-generator'
+import './password'
 import './qrcode-tool'
 import './radix-convert'
 import './regex-tester'
